@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBER TRACE</title>
+<style>
+html,body{
+margin:0;
+padding:0;
+background:black;
+color:#00ffcc;
+font-family:monospace;
+overflow:hidden;
+}
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:0;
+}
+#container{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:90%;
+max-width:420px;
+text-align:center;
+z-index:2;
+}
+input,button{
+width:100%;
+background:black;
+border:1px solid #00ffcc;
+color:#00ffcc;
+padding:10px;
+margin:6px 0;
+font-family:monospace;
+}
+button{cursor:pointer;}
+.red{color:#ff0033;}
+#traceBox{
+width:100%;
+height:18px;
+border:1px solid #00ffcc;
+margin-top:10px;
+}
+#traceBar{
+height:100%;
+width:0%;
+background:#00ffcc;
+}
+#camera{
+position:absolute;
+top:15px;
+right:20px;
+width:14px;
+height:14px;
+border-radius:50%;
+background:red;
+box-shadow:0 0 15px red;
+animation:blink 0.8s infinite;
+}
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.2}
+100%{opacity:1}
+}
+.heavyGlitch{
+animation:shake 0.1s infinite;
+}
+@keyframes shake{
+0%{transform:translate(3px,2px)}
+25%{transform:translate(-3px,-2px)}
+50%{transform:translate(4px,-3px)}
+75%{transform:translate(-4px,3px)}
+100%{transform:translate(0,0)}
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div id="camera"></div>
+
+<div id="container">
+<h3>CYBER TRACE SYSTEM</h3>
+
+<div id="loginDiv">
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button id="loginBtn">ENTER</button>
+<div id="status"></div>
+</div>
+
+<div id="traceDiv" style="display:none;">
+<input id="targetNumber" placeholder="Target number">
+<button id="traceBtn">TRACE</button>
+<div id="traceBox"><div id="traceBar"></div></div>
+<div id="percent"></div>
+<div id="signal"></div>
+<div id="accuracy"></div>
+</div>
+</div>
+
+<script>
+// MATRIX
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+const cols=Math.floor(canvas.width/18)+1;
+const ypos=Array(cols).fill(0);
+function matrix(){
+ctx.fillStyle="rgba(0,0,0,0.08)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle="#00ffcc";
+ctx.font="16px monospace";
+ypos.forEach((y,ind)=>{
+ctx.fillText(Math.random()>0.5?"0":"1",ind*18,y);
+ypos[ind]=y>canvas.height+10000*Math.random()?0:y+18;
+});
+requestAnimationFrame(matrix);
+}
+matrix();
+
+// CYBER VOICE
+function speak(text){
+let msg=new SpeechSynthesisUtterance(text);
+msg.lang="en-US";
+msg.pitch=0.6;
+msg.rate=0.85;
+msg.volume=0.9;
+speechSynthesis.cancel();
+speechSynthesis.speak(msg);
+}
+
+// RANDOM INDONESIA POOL (250 sample spread)
+function randomIndonesia(){
+let lat=(Math.random()*17-11).toFixed(6);
+let lng=(Math.random()*46+95).toFixed(6);
+return {lat,lng};
+}
+
+// LOGIN
+loginBtn.onclick=function(){
+if(username.value==="admin" && password.value==="root"){
+status.innerText="ACCESS GRANTED";
+speak("System unlocked.");
+loginDiv.style.display="none";
+traceDiv.style.display="block";
+}else{
+status.innerText="ACCESS DENIED";
+status.classList.add("red");
+document.body.classList.add("heavyGlitch");
+speak("Access denied.");
+setTimeout(()=>{document.body.classList.remove("heavyGlitch");},800);
+}
+};
+
+// TRACE
+traceBtn.onclick=function(){
+let bar=document.getElementById("traceBar");
+let percent=document.getElementById("percent");
+let signal=document.getElementById("signal");
+let accuracy=document.getElementById("accuracy");
+let width=0;
+
+speak("Initializing trace.");
+
+let interval=setInterval(()=>{
+if(width>=100){
+clearInterval(interval);
+
+let coords=randomIndonesia();
+let acc=Math.floor(85+Math.random()*15);
+
+signal.innerText="Signal: FIXED";
+accuracy.innerText="Accuracy: "+acc+"%";
+
+speak("Signal fixed. Location captured.");
+
+setTimeout(()=>{
+if(Math.random()>0.15){
+window.location.href=`https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
+}else{
+speak("Location not found.");
+signal.innerText="Signal: LOST";
+}
+},3000);
+
+}else{
+width++;
+bar.style.width=width+"%";
+percent.innerText="Tracing... "+width+"%";
+}
+},30);
+};
+</script>
+
+</body>
+</html>
